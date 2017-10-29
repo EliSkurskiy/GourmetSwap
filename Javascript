@@ -1,1 +1,74 @@
+(function () {
 
+    angular
+        .module(APP.NAME).controller("NavPubController", NavPubController);
+
+    NavPubController.$inject = ['$log', '$window', '$stateParams', '$state', 'userService'];
+
+    function NavPubController($log, $window, $stateParams, $state, userService) {
+        var vm = this;
+
+        vm.$onInit = _onInit;
+        vm.logout = _logout;
+        vm.goToOwnProfile = _goToOwnProfile;
+        vm.goToOwnUpdateForm = _goToOwnUpdateForm;
+        vm.goToMyFollowed = _goToMyFollowed;
+        vm.goToMyLiked = _goToMyLiked;
+
+        function _onInit() {
+
+            userService.currentUser(_onIsLoggedInSuccess, _onIsLoggedInError)
+
+        }
+
+        function _logout() {
+            userService.logout(_onLogoutSuccess, _onLogoutError);
+        };
+
+
+        function _goToOwnProfile() {
+            if (vm.role.includes("Chef")) {
+                $state.go("cooks.profile.Menu", vm.cookId)
+            } else {
+                $state.go("pub");
+            }
+        }
+        function _goToOwnUpdateForm() {
+            $state.go("cooksProfile.register")
+        }
+        function _goToMyFollowed() {
+            $window.location.href = "/cooks/user/profile/followed";
+        }
+        function _goToMyLiked() {
+            $window.location.href = "/cooks/user/profile/liked";
+        }
+
+
+        function _onLogoutSuccess(response) {
+            $state.go('pub', { role: null }, { reload: true });
+        }
+
+        function _onLogoutError(response) {
+            $log.log(response);
+            if (response && response.error) {
+                $log.log("Logout Failed");
+            } else {
+                $log.log("Unable to connect with server. Logout Failed.");
+            }
+
+        }
+
+        function _onIsLoggedInSuccess(response) {
+            vm.exists = true;
+            vm.cookId = { userId: response.data.id }
+            vm.userName = response.data.name
+            vm.role = response.data.roles;
+        }
+
+        function _onIsLoggedInError(response) {
+            $log.log("not logged in");
+        }
+
+    }
+
+})();

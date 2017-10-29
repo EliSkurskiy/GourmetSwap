@@ -1,0 +1,159 @@
+(function () {
+    'use strict'
+
+    angular.module(APP.NAME)
+        .factory('cookServices', cookServices)
+
+    cookServices.$inject = ['$http'];
+
+    function cookServices($http) {
+        return {
+            getCookProfile: _getCookProfile
+            , getServicesProvided: _getServicesProvided
+            , getCuisines: _getCuisines
+            , getCookInfo: _getCookInfo
+            , getMealTime: _getMealTime
+            , submitMsgToChef: _submitMsgToChef
+            , getMessages: _getMessages
+            , submitReply: _submitReply
+            , getReplies: _getReplies
+        };
+
+        function _getReplies(ownerId, ownerTypeId, parentId, replySuccess, onError) {
+            {
+                var settings = {
+                    url: "/api/comments/thread/" + ownerId + "/" + ownerTypeId + "/" + parentId
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(replySuccess, onError);
+
+                function replySuccess(response) {
+                    return { data: response.data, parentId: parentId };
+                }
+            };
+        };
+
+        function _getMessages(userId, ownerTypeId, onSuccess, onError) {
+            {
+                var settings = {
+                    url: "/api/comments/" + userId + "/" + ownerTypeId
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onSuccess, onError);
+            };
+        };
+
+        function _submitReply(data, onSuccess, onError) {
+            var settings = {
+                url: "/api/comments/"
+                , method: 'POST'
+                , cache: false
+                , contentType: 'application/json; charset=UTF-8'
+                , withCredentials: true
+                , data: data
+            };
+            return $http(settings)
+                .then(onSuccess, onError)
+        }
+
+
+
+        function _submitMsgToChef(data,onSuccess, onError) {
+            var settings = {
+                url: "/api/comments/"
+                , method: 'POST'
+                , cache: false
+                , contentType: 'application/json; charset=UTF-8'
+                , withCredentials: true
+                , data: data
+            };
+            return $http(settings)
+                .then(onSuccess, onError)
+        }
+
+
+        function _getCookProfile(cookId, onCookProfileGetSuccess, onCookProfileGetError) {
+            {
+                var settings = {
+                    url: "/api/users/cooks/" + cookId + "/profile"
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onCookProfileGetSuccess, onCookProfileGetError);
+            };
+        };
+
+        function _getServicesProvided(cookId, onServicesProvidedGetSuccess, onServicesProvidedGetError) {
+            {
+
+                var settings = {
+                    url: "/api/cooks/" + cookId + "/profile/services"
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onServicesProvidedGetSuccess, onServicesProvidedGetError);
+            };
+        };
+
+        function _getCuisines(cookId, onCuisinesGetSuccess, onCuisinesGetError) {
+            {
+
+                var settings = {
+                    url: "/api/cooks/" + cookId + "/profile/cuisines"
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onCuisinesGetSuccess, onCuisinesGetError);
+            };
+        };
+
+        function _getCookInfo(cookId, onCookInfoGetSuccess, onCookInfoGetError) {
+            {
+
+                var settings = {
+                    url: "/api/cooks/" + cookId + "/profile/cookinfo"
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onCookInfoGetSuccess, onCookInfoGetError);
+            };
+        };
+
+        function _getMealTime(cookId, onGetMealTimeSuccess, onGetMealTimeError) {
+            {
+
+                var settings = {
+                    url: "/api/cooks/" + cookId + "/profile/mealtimes"
+                    , method: 'GET'
+                    , cache: false
+                    , responseType: 'json'
+                    , withCredentials: true
+                };
+                return $http(settings)
+                    .then(onGetMealTimeSuccess, onGetMealTimeError);
+            };
+        };
+
+
+    };
+})();

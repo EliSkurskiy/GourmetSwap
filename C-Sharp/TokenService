@@ -1,0 +1,160 @@
+using GSwap.Data.Providers;
+using GSwap.Models.Domain;
+using GSwap.Models.Requests.Email;
+using GSwap.Models.Requests.Users;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GSwap.Services
+{
+    public class TokenService : ITokenService
+    {
+
+        private IDataProvider _dataProvider;
+
+        public TokenService(IDataProvider dataProvider)
+        {
+            _dataProvider = dataProvider;
+        }
+
+
+        public Guid GenerateToken(int id, int TokenTypeId)
+        {
+            Guid token = Guid.Empty;
+            Action<SqlParameterCollection> inputParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+
+                paramCollection.AddWithValue("@UserId", id);
+                paramCollection.AddWithValue("@TokenTypeId", TokenTypeId);
+
+
+                SqlParameter outParameter = new SqlParameter("@Token", System.Data.SqlDbType.UniqueIdentifier);
+                outParameter.Direction = System.Data.ParameterDirection.Output;
+
+                paramCollection.Add(outParameter);
+            };
+
+            Action<SqlParameterCollection> returnParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+                Guid.TryParse(paramCollection["@Token"].Value.ToString(), out token);
+            };
+
+            string proc = "dbo.UserTokens_Generate";
+            _dataProvider.ExecuteNonQuery(proc, inputParamDelegate, returnParamDelegate);
+
+
+            return token;
+        }
+
+        public bool HasExistingToken(int userId, int tokenTypeId)
+        {
+            bool idExists = false;
+
+            Action<SqlParameterCollection> inputParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+
+                paramCollection.AddWithValue("@UserId", userId);
+                paramCollection.AddWithValue("@TokenTypeId", tokenTypeId);
+
+                SqlParameter outputParameter = new SqlParameter("@Exists", System.Data.SqlDbType.Bit);
+                outputParameter.Direction = System.Data.ParameterDirection.Output;
+
+                paramCollection.Add(outputParameter);
+            };
+
+            Action<SqlParameterCollection> returnParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+                Boolean.TryParse(paramCollection["@Exists"].Value.ToString(), out idExists);
+
+            };
+
+            string proc = "dbo.UserId_Exists";
+            _dataProvider.ExecuteNonQuery(proc, inputParamDelegate, returnParamDelegate);
+
+
+            return idExists;
+
+        }
+
+        public Guid GetGuidById(int userId, int tokenTypeId)
+        {
+            Guid token = Guid.Empty;
+
+            Action<SqlParameterCollection> inputParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+
+                paramCollection.AddWithValue("@Id", userId);
+                paramCollection.AddWithValue("@TokenTypeId", tokenTypeId);
+
+
+                SqlParameter outputParameter = new SqlParameter("@Token", System.Data.SqlDbType.UniqueIdentifier);
+                outputParameter.Direction = System.Data.ParameterDirection.Output;
+
+                paramCollection.Add(outputParameter);
+            };
+
+            Action<SqlParameterCollection> returnParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+                Guid.TryParse(paramCollection["@Token"].Value.ToString(), out token);
+            };
+
+            string proc = "dbo.UserTokens_SelectGuidById";
+            _dataProvider.ExecuteNonQuery(proc, inputParamDelegate, returnParamDelegate);
+
+
+            return token;
+
+        }
+
+        public int GetIdByGuid(Guid guidToken)
+        {
+            int userId = 0;
+
+            Action<SqlParameterCollection> inputParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+
+                paramCollection.AddWithValue("@Token", guidToken);
+                
+
+
+                SqlParameter outputParameter = new SqlParameter("@Id", System.Data.SqlDbType.Int);
+                outputParameter.Direction = System.Data.ParameterDirection.Output;
+
+                paramCollection.Add(outputParameter);
+            };
+
+            Action<SqlParameterCollection> returnParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+                Int32.TryParse(paramCollection["@Id"].Value.ToString(), out userId);
+            };
+
+            string proc = "dbo.UserTokens_SelectIdByGuid";
+            _dataProvider.ExecuteNonQuery(proc, inputParamDelegate, returnParamDelegate);
+
+
+            return userId;
+
+        }
+
+        public void TokenDelete(int userId, int tokenTypeId)
+        {
+            
+            Action<SqlParameterCollection> inputParamDelegate = delegate (SqlParameterCollection paramCollection)
+            {
+
+                paramCollection.AddWithValue("@UserId", userId);
+                paramCollection.AddWithValue("@TokenTypeId", tokenTypeId);
+                
+            };
+
+            string proc = "dbo.UserTokens_Delete";
+            _dataProvider.ExecuteNonQuery(proc, inputParamDelegate);
+            
+        }
+    }
+}

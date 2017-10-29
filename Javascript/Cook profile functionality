@@ -1,0 +1,263 @@
+//Cook profile view management
+(function () {
+    'use strict'
+
+    angular.module(APP.NAME)
+        .controller('cookProfileController', CookProfileController);
+
+    CookProfileController.$inject = ['$log', '$location', 'cookServices', 'Domain', '$stateParams', '$state', "$sce", "userService", "toastr"];
+
+    function CookProfileController($log, $location, cookServices, Domain, $stateParams, $state, $sce, userService, toastr) {
+
+        var vm = this;
+        vm.activeState = $stateParams.selectedPage || 'Menu';
+        vm.$onInit = _onInit;
+        vm.setActive = _setActive;
+        vm.likeThisChef = _likeThisChef;
+        vm.followThisChef = _followThisChef;
+        vm.checkUser = _checkUser;
+        vm.submitMsg = _submitMsg;
+        vm.viewReply = _viewReply;
+
+        function _onInit() {  
+           
+            userService.currentUser(_currentUserSuccess, _currentUserError)
+            vm.cookId = $stateParams.userId
+            cookServices.getCookProfile(vm.cookId, onCookProfileGetSuccess, onCookProfileGetError);
+
+            cookServices.getServicesProvided(vm.cookId, onServicesProvidedGetSuccess, onServicesProvidedGetError);
+
+            cookServices.getCuisines(vm.cookId, onCuisinesGetSuccess, onCuisinesGetError);
+
+            cookServices.getCookInfo(vm.cookId, onCookInfoGetSuccess, onCookInfoGetError);
+
+            cookServices.getMealTime(vm.cookId, _onGetMealTimeSuccess, _onGetMealTimeError);
+            
+            userService.getCookStats(vm.cookId, _onGetCookStatsSuccess, _onGetCookStatsError);
+
+            userService.currentUser(_onGetCurrentUserSuccess, _onGetCurrentUserError);
+            
+            
+        };
+
+        function _checkUser(cookId) {
+            if (cookId === vm.currentUser || vm.currentUser === 0) {
+                vm.IsClickEnable = false;
+            }
+            else 
+            {
+                vm.IsClickEnable = true;
+            }
+        }
+        function _likeThisChef() {
+            userService.setCookLikes(vm.cookId, onSetCookLikesSuccess, onSetCookLikesError);
+        }
+
+        function _followThisChef() {
+            userService.setCookFollows(vm.cookId, onSetCookFollowsSuccess, onSetCookFollowsError);
+        }     
+        function onSetCookLikesSuccess() {
+            if (vm.cookStats.currentlyLiked === true) {
+                vm.cookStats.likesTotal = vm.cookStats.likesTotal - 1;
+                vm.cookStats.currentlyLiked = false;
+            }
+            else {
+                vm.cookStats.likesTotal = vm.cookStats.likesTotal + 1;
+                vm.cookStats.currentlyLiked = true;
+            }
+        };
+
+        function onSetCookLikesError(response) {
+            $log.log(response);
+        }
+
+
+        function onSetCookFollowsSuccess() {
+            if (vm.cookStats.currentlyFollowed === true) {
+                vm.cookStats.followsTotal = vm.cookStats.followsTotal - 1;
+                vm.cookStats.currentlyFollowed = false;
+            }
+            else {
+                vm.cookStats.followsTotal = vm.cookStats.followsTotal + 1;
+                vm.cookStats.currentlyFollowed = true;
+            }
+        };
+
+        function onSetCookFollowsError(response) {
+            $log.log(response);
+        }
+
+
+        function _onGetCurrentUserSuccess(response) {
+            if (response === null) {
+                vm.currentUser = 0;
+            }
+            else {
+                vm.currentUser = response.data.id;
+            }
+            _checkUser(vm.cookId, vm.currentUser);
+        };
+
+        function _onGetCurrentUserError(response) {
+            $log.log(response);
+        }
+
+        function _onGetCookStatsSuccess(response) {
+            vm.cookStats = response.data.item;
+        };
+
+        function _onGetCookStatsError(response) {
+            vm.cookStats.currentlyLiked = 0;
+            vm.cookStats.currentlyFollowed = 0;
+            vm.cookStats.likesTotal = 0;
+            vm.cookStats.followsTotal = 0;
+        };
+
+        function _setActive(activeState) {
+            $state.go('cooks.profile.' + activeState, { reload: true });
+
+        };
+
+        function _submitMsg() {
+
+            var chefId = $stateParams.userId;
+            vm.pvtMsgData.ownerId = chefId
+            vm.pvtMsgData.userId = vm.userId
+            vm.pvtMsgData.ownerTypeId = 2;
+
+
+            cookServices.submitMsgToChef(vm.pvtMsgData, _submitMsgToChefSuccess, _submitMsgToChefError)
+        };
+
+        function _viewReply(parentId) {        
+            var ownerTypeId = 2;
+            cookServices.getReplies($stateParams.userId, ownerTypeId, parentId, _getRepliesSuccess, _getRepliesError).then(_getRepliesSuccess)
+        };
+
+ 
+
+        function _getRepliesSuccess(response) {
+            var parentId = response.parentId;
+            var replies = response.data.items;
+            vm.hideReply = false;
+            vm.showReply = true;
+            vm.msgReplies = [];
+            $log.log("Replies Retrieved");
+            debugger
+
+            var parent = vm.messages.find(function (element) {
+                return element.id === parentId;
+            })
+
+            parent.replies = replies;
+            parent.showReplies = true;
+        }
+
+        function _getRepliesError(response) {
+            $log.log("Replies retrieval error");
+        }
+
+        function _getMessagesSuccess(response) {
+            vm.messages = response.data.items;
+            debugger
+            $log.log("Messages Retrieved");
+        }
+
+        function _getMessagesError(response) {
+            $log.log("Message retrieval error");
+        }
+
+
+        function _submitMsgToChefSuccess(response) {
+            $log.log("Message Sent");
+            toastr.success("Message Sent!")
+            $state.go("cooks.profile.Message", { role: null },{ reload: true })
+        }
+
+        function _submitMsgToChefError(response) {
+            $log.log("Message Not Sent");
+        }
+
+
+        function _currentUserSuccess(response) {
+            vm.exists = true;
+            vm.userName = response.data.name
+            vm.userId = response.data.id
+            if ($stateParams.userId === vm.userId) {
+                vm.hideMessages = true;
+            } else {
+
+            var ownerTypeId = 2;
+            cookServices.getMessages($stateParams.userId, ownerTypeId, _getMessagesSuccess, _getMessagesError)
+
+            }
+
+        }
+
+        function _currentUserError(response) {
+            $log.log("not logged in");
+        }
+
+        function onCookProfileGetSuccess(response) {
+            $log.log("Cook profiles successfully retrieved.");
+            vm.cookProfile = response.data.item;
+            vm.cookProfile.name = vm.cookProfile.firstName + " " + vm.cookProfile.lastName
+            vm.cookProfile.loadPhoto = Domain + vm.cookProfile.photo;
+
+        };
+
+        function onCookProfileGetError() {
+            $log.log("Failed to get Chef Profiles.");
+        };
+
+        function _onGetMealTimeSuccess(response) {
+          
+            $log.log("Meal time successfully retrieved.");
+            vm.mealTimes = response.data.items;
+
+        };
+
+        function _onGetMealTimeError() {
+            $log.log("Failed to get Meal time.");
+        };
+
+        function onCookInfoGetSuccess(response) {
+
+            $log.log("Info successfully retrieved.");
+            vm.cookInfo = response.data.items;
+            vm.cookbio = $sce.trustAsHtml(vm.cookInfo[0].bio);
+        };
+
+        function onCookInfoGetError() {
+            $log.log("Failed to get Info.");
+        };
+
+        function onCuisinesGetSuccess(response) {
+
+            $log.log("Cuisines successfully retrieved.");
+            vm.cuisines = response.data.items;
+
+        };
+
+        function onCuisinesGetError() {
+            $log.log("Failed to get cuisines.");
+
+        };
+
+        function onServicesProvidedGetSuccess(response) {
+
+            $log.log("Services successfully retrieved.");
+            vm.services = response.data.items;
+
+        };
+
+        function onServicesProvidedGetError() {
+            $log.log("Failed to get Services.");
+
+        };
+
+
+
+
+    }
+})();

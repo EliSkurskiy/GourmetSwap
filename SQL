@@ -1,0 +1,63 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+/****** Object:  StoredProcedure [dbo].[UserTokens_Generate]    Script Date: 10/29/2017 4:32:54 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ALTER proc [dbo].[UserTokens_Generate]
+			@UserId int
+			,@TokenTypeId int
+			,@Token uniqueidentifier output
+
+
+
+
+/* -------------TEST CODE--------------
+Declare		@UserId int = '4'
+			,@TokenTypeId int = '1'
+			,@Token uniqueidentifier
+			
+		
+
+			
+			
+Execute dbo.UserTokens_Generate
+			@UserId
+			,@TokenTypeId
+			,@Token OUTPUT
+
+			SELECT *
+			FROM dbo.UserTokens			
+*/ ------------------------------------
+as
+
+BEGIN
+
+SET			@Token = NEWID()
+
+INSERT INTO [dbo].[UserTokens]
+           ([UserId]
+           ,[Token]
+           ,[TokenTypeId])
+     VALUES
+           (@UserId
+           ,@Token
+           ,@TokenTypeId)
+
+END
+
+

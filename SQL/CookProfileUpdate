@@ -1,0 +1,134 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[CookProfileStepTwo_UpdateV2]
+	@ServicesOffered [dbo].[IntIdTable] READONLY
+	,@CuisineStyles [dbo].[IntIdTable] READONLY
+	,@PreviousRestaurants int
+	,@Bio nvarchar(MAX)
+	,@Zipcode nvarchar(50)
+	,@DishesPerWeek int	
+	,@WillDeliver bit
+	,@UserId int
+	
+
+
+
+/*
+
+--------------TEST CODE----------------
+ Declare @UserId int = 53;
+
+SELECT *
+FROM dbo.CookProfiles
+WHERE UserId  = @UserId ;
+
+
+
+	Declare 
+		@ServicesOffered [dbo].[IntIdTable]
+		, @CuisineStyles [dbo].[IntIdTable]
+		,@PreviousRestaurants int = 6
+		, @Bio nvarchar(max) = 'test'
+		, @Zipcode nvarchar(50) = 33333	  
+		, @DishesPerWeek int = 1	  
+		, @WillDeliver bit = 0
+	 
+	insert into @ServicesOffered (data)
+	Values (3), (4), (5),(1), (2), (6)
+
+	insert into @CuisineStyles (data)
+	Values(14), (16), (17)
+
+	 
+
+	  
+ execute dbo.[CookProfileStepTwo_UpdateV2]
+		@ServicesOffered
+		, @CuisineStyles
+		, @PreviousRestaurants
+		, @Bio
+		, @Zipcode	  
+		, @DishesPerWeek	  
+		, @WillDeliver 
+		, @UserId 
+	 
+
+
+
+
+ select *
+ from dbo.CookProfiles
+ WHERE UserId = @UserId 
+
+
+  select * from dbo.CookServices
+ where userid =  @UserId 
+
+ select * from dbo.CuisineOptions
+ where userid =  @UserId 
+
+ 
+
+*/------------------------------
+
+AS
+
+BEGIN
+
+	Declare	@DateModified datetime2(7) = GETUTCDATE()
+
+	Declare @CookProfileUserId int = 0;
+
+	Select @CookProfileUserId = UserId
+	From dbo.CookProfiles 
+	WHERE UserId = @UserId 
+
+	IF (@CookProfileUserId <> @UserId) 
+	BEGIN
+	;THROW 51000, 'Cannot update. UserId provided does not owner of the file.', 1;
+	END
+
+	UPDATE [dbo].[CookProfiles]
+	   SET [PreviousRestaurants] = @PreviousRestaurants
+		  ,[Bio] = @Bio
+		  ,[Zipcode] = @Zipcode		
+		  ,[DishesPerWeek] = @DishesPerWeek		 
+		  ,[WillDeliver] = @WillDeliver
+		  ,[DateModified]= @DateModified
+	 WHERE UserId = @UserId
+
+	 delete from [dbo].[CookServices]
+	Where UserId = @UserId
+
+	delete from [dbo].[CuisineOptions]
+	Where UserId = @UserId
+
+	
+
+
+		insert into dbo.CookServices( UserId, ServiceId)
+	Select @userid, Data
+	From @ServicesOffered s
+
+	insert into dbo.CuisineOptions ( UserId, CuisineId)
+	Select @userid, Data
+	From @CuisineStyles c
+
+ END
+

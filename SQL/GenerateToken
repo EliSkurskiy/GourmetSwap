@@ -30,8 +30,7 @@ ALTER proc [dbo].[UserTokens_Generate]
 Declare		@UserId int = '4'
 			,@TokenTypeId int = '1'
 			,@Token uniqueidentifier
-			
-		
+					
 
 			
 			

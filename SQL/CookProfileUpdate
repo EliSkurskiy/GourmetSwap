@@ -121,7 +121,6 @@ BEGIN
 
 	
 
-
 		insert into dbo.CookServices( UserId, ServiceId)
 	Select @userid, Data
 	From @ServicesOffered s

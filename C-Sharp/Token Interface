@@ -1,0 +1,18 @@
+using System.Threading.Tasks;
+using GSwap.Models.Domain;
+using GSwap.Models.Requests.Email;
+using GSwap.Models.Requests.Users;
+using System;
+
+namespace GSwap.Services
+{
+    public interface ITokenService
+    {
+        Guid GenerateToken(int userId, int tokenTypeId);
+        bool HasExistingToken(int userId,int tokenTypeId);
+        Guid GetGuidById(int userId,int tokenTypeId);
+        int GetIdByGuid(Guid guidToken);
+        void TokenDelete(int userId, int tokenTypeId);
+        void SetIsConfirmed(int userId);
+    }
+}

@@ -1,0 +1,58 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+/****** Object:  StoredProcedure [dbo].[UserTokens_Delete]    Script Date: 10/29/2017 4:38:41 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ALTER proc  [dbo].[UserTokens_Delete]
+					@UserId int
+		     ,@TokenTypeId int
+	
+/*--------TEST CODE------------
+Declare		 @UserId int = 1
+			 		,@TokenTypeId int = 66
+
+Select *
+					From dbo.UserTokens
+					Where userId = @userId
+
+Execute		dbo.UserTokens_Delete
+					@UserId
+					,@TokenTypeId
+
+Select *
+					From dbo.UserTokens
+					Where UserId = @UserId
+					AND	TokenTypeId = @TokenTypeId
+		
+
+*/---------------------------------
+as
+
+BEGIN
+
+
+
+Delete	 FROM  [dbo].[UserTokens]
+Where		 UserId = @UserId and TokenTypeId = @TokenTypeId
+ 
+
+END
+
+
+
+

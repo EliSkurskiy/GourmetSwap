@@ -1,0 +1,60 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+ALTER proc [dbo].[UserTokens_SelectGuidById]
+					@Id int
+					,@Token uniqueidentifier output
+					,@TokenTypeId int
+
+/*---------------test code-------------
+
+	Declare @Id int = 99
+					,@Token uniqueidentifier
+					,@TokenTypeId int
+
+
+	Execute dbo.UserTokens_SelectGuidById
+					@Id
+					,@Token output
+					,@TokenTypeId 
+
+
+
+*/-----------------------------------------
+
+as
+
+
+BEGIN
+
+	SELECT @Token = [Token]
+		 
+		FROM [dbo].[UserTokens]
+		WHERE UserId = @Id
+
+
+	SELECT @Token
+		
+
+
+
+END

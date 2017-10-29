@@ -19,8 +19,7 @@
         vm.submitMsg = _submitMsg;
         vm.viewReply = _viewReply;
 
-        function _onInit() {  
-           
+        function _onInit() {             
             userService.currentUser(_currentUserSuccess, _currentUserError)
             vm.cookId = $stateParams.userId
             cookServices.getCookProfile(vm.cookId, onCookProfileGetSuccess, onCookProfileGetError);

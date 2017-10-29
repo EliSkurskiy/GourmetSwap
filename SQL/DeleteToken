@@ -39,7 +39,6 @@ Select *
 					Where UserId = @UserId
 					AND	TokenTypeId = @TokenTypeId
 		
-
 */---------------------------------
 as
 

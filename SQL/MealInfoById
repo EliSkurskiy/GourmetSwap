@@ -1,0 +1,55 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[Meals_GetMealInfoById]
+			@Id int
+
+/*
+  execute dbo.Meals_GetMealInfoById
+			@Id = 53
+---------TEST CODE----------
+
+
+
+*/
+
+
+AS
+
+BEGIN
+
+
+SELECT   m.[Title]
+      ,m.[Description]
+      ,m.[DeliveryOption]
+      ,m.[Comment]
+	  ,t.[StartDate]
+	  ,t.[EndDate]
+	  ,m.[UserId]
+	  ,m.[Id]
+
+ 
+
+  FROM [dbo].[Meals] m join dbo.MealTimes t
+		on t.MealId = m.Id
+	WHERE m.UserId = @Id
+	Order by m.Title
+
+
+
+END

@@ -11,7 +11,7 @@
 
 USE [C40_GSwap]
 GO
-/****** Object:  StoredProcedure [dbo].[UserRole_UserExists]    Script Date: 10/29/2017 5:01:18 PM ******/
+
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

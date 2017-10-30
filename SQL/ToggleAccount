@@ -1,0 +1,89 @@
+/*    ==Scripting Parameters==
+
+    Source Server Version : SQL Server 2016 (13.0.4001)
+    Source Database Engine Edition : Microsoft SQL Server Enterprise Edition
+    Source Database Engine Type : Standalone SQL Server
+
+    Target Server Version : SQL Server 2017
+    Target Database Engine Edition : Microsoft SQL Server Standard Edition
+    Target Database Engine Type : Standalone SQL Server
+*/
+
+USE [C40_GSwap]
+GO
+/****** Object:  StoredProcedure [dbo].[UserRole_UserExists]    Script Date: 10/29/2017 5:01:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[UserRole_UserExists]
+			@UserId int
+			,@Role nvarchar(50)
+			
+
+
+
+
+			
+			/*-----------------Test Code-------------------
+		
+Declare	 @UserId int = 2
+		,@Role nvarchar(50) = 'Chef'
+					
+
+
+Execute UserRole_UserExists
+
+		@UserId
+		,@Role
+				
+
+
+Select *
+FROM dbo.UserRoles
+WHERE  UserId = @UserId
+
+			
+
+
+			*/
+			
+AS
+
+
+BEGIN	
+		Declare @Chef int = 2
+		Declare @RoleId int = 0
+		Select	@RoleId = r.[Id]
+		FROM
+				dbo.[UserRoles] u join dbo.[Roles] r
+		on		u.RoleId = r.Id
+
+		WHERE	@Role = r.Name
+		
+			AND @UserId = u.UserId
+
+		PRINT	@RoleId
+
+			
+	IF		(@RoleId = 2 ) 
+	BEGIN
+		DELETE FROM 
+				dbo.UserRoles
+
+		Where	UserId = @UserId
+			and	RoleId = @RoleId;
+	END	
+				
+	ELSE IF (@RoleId <> 2)
+	BEGIN		
+		INSERT INTO 
+				[dbo].[UserRoles]
+				([UserId]
+				,[RoleId])
+		VALUES 
+				(@UserId
+				,@Chef)
+	END		
+			
+END
